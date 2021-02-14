@@ -1,0 +1,19 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	3	quantify_genes
+	4
+
+[Fri Feb 12 13:46:56 2021]
+rule quantify_genes:
+    input: genome.fa, data/Sample3.R1.fastq.gz, data/Sample3.R2.fastq.gz
+    output: Sample3.txt
+    jobid: 3
+    wildcards: sample=Sample3
+
+RuleException in line 7 of /mnt/c/Users/manon/dataprocessing/snakemake-test/Snakefile.txt:
+'InputFiles' object has no attribute 'r3'

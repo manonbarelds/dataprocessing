@@ -1,0 +1,2 @@
+SyntaxError in line 38 of /mnt/c/Users/manon/dataprocessing/snakemake-test/Snakefile2.txt:
+Multiple run or shell keywords in rule report. (Snakefile2.txt, line 38)

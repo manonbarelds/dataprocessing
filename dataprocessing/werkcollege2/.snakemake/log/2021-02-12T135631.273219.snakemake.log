@@ -1,0 +1,19 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	collate_outputs
+	1
+
+[Fri Feb 12 13:56:31 2021]
+rule collate_outputs:
+    input: Sample1.txt, Sample2.txt, Sample3.txt
+    output: test.txt
+    jobid: 0
+
+[Fri Feb 12 13:56:33 2021]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: /mnt/c/Users/manon/dataprocessing/snakemake-test/.snakemake/log/2021-02-12T135631.273219.snakemake.log

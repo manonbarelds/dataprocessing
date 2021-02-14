@@ -1,0 +1,3 @@
+NameError in line 5 of /mnt/c/Users/manon/dataprocessing/snakemake-test/Snakefile.txt:
+name 'test' is not defined
+  File "/mnt/c/Users/manon/dataprocessing/snakemake-test/Snakefile.txt", line 5, in <module>

@@ -1,0 +1,16 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	bwa_map
+	1
+
+[Fri Feb 12 15:36:33 2021]
+Job 0: executing bwa mem on the following data/genome.fa data/samples/B.fastq to generate the following mapped_reads/B.bam
+
+[Fri Feb 12 15:36:35 2021]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: /mnt/c/Users/manon/dataprocessing/snakemake-test/.snakemake/log/2021-02-12T153633.553046.snakemake.log

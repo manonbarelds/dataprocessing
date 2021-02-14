@@ -1,0 +1,63 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	bcftools_call
+	1	report
+	3	samtools_index
+	5
+
+[Fri Feb 12 16:28:35 2021]
+rule samtools_index:
+    input: sorted_reads/C.bam
+    output: sorted_reads/C.bam.bai
+    jobid: 7
+    wildcards: sample=C
+
+
+[Fri Feb 12 16:28:35 2021]
+rule samtools_index:
+    input: sorted_reads/A.bam
+    output: sorted_reads/A.bam.bai
+    jobid: 5
+    wildcards: sample=A
+
+
+[Fri Feb 12 16:28:35 2021]
+rule samtools_index:
+    input: sorted_reads/B.bam
+    output: sorted_reads/B.bam.bai
+    jobid: 6
+    wildcards: sample=B
+
+[Fri Feb 12 16:28:35 2021]
+Finished job 7.
+1 of 5 steps (20%) done
+[Fri Feb 12 16:28:35 2021]
+Finished job 5.
+2 of 5 steps (40%) done
+[Fri Feb 12 16:28:35 2021]
+Finished job 6.
+3 of 5 steps (60%) done
+
+[Fri Feb 12 16:28:35 2021]
+rule bcftools_call:
+    input: data/genome.fa, sorted_reads/A.bam, sorted_reads/B.bam, sorted_reads/C.bam, sorted_reads/A.bam.bai, sorted_reads/B.bam.bai, sorted_reads/C.bam.bai
+    output: calls/all.vcf
+    jobid: 1
+
+[Fri Feb 12 16:28:36 2021]
+Error in rule bcftools_call:
+    jobid: 1
+    output: calls/all.vcf
+    shell:
+        samtools mpileup -g -f data/genome.fa sorted_reads/A.bam sorted_reads/B.bam sorted_reads/C.bam | bcftools call -mv - > calls/all.vcf
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Removing output files of failed job bcftools_call since they might be corrupted:
+calls/all.vcf
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /mnt/c/Users/manon/dataprocessing/snakemake-test/.snakemake/log/2021-02-12T162835.470676.snakemake.log
