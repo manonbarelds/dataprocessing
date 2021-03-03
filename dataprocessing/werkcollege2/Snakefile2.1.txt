@@ -1,0 +1,82 @@
+from os.path import join
+SAMPLES = config["samples"]
+
+wdir = "C:/Users/manon/dataprocessing_/dataprocessing/snakemake-test"
+sample_dir = "C:/Users/manon/dataprocessing_/dataprocessing/snakemake-test/data/samples"
+FASTQ_DIR = 'data/'
+mapped_output_dir = "C:/Users/manon/dataprocessing_/dataprocessing/snakemake-test/mapped_reads"
+sorted_reads_dir = "C:/Users/manon/dataprocessing_/dataprocessing/snakemake-test/sorted_reads"
+configfile: "C:/Users/manon/dataprocessing_/dataprocessing/snakemake-test/config.yaml"
+
+
+rule all:
+    input:
+        "calls/all.vcf",
+	"out.html"
+    message: "executes all rules in this file"
+
+rule bwa_map:
+    input:
+        genome = join(wdir, FASTQ_DIR, 'genome.fa'),
+        samples = join(wdir, FASTQ_DIR, 'samples/{sample}.fastq')
+    output:
+        join(mapped_output_dir, "{sample}.bam")
+    message: "executing bwa mem on the following {input} to generate the following {output}"
+    shell:
+        "bwa mem {input} | samtools view -Sb - > {output}"
+
+rule samtools_sort:
+    input:
+        "mapped_reads/{sample}.bam"
+    output:
+        "sorted_reads/{sample}.bam"
+    message: "sorting the {input} and store it in {output}"
+    shell:
+        "samtools sort -T sorted_reads/{wildcards.sample} "
+        "-O bam {input} > {output}"
+
+rule samtools_index:
+    input:
+        "sorted_reads/{sample}.bam"
+    output:
+        "sorted_reads/{sample}.bam.bai"
+    message: "execute indexing on {input} for random access and safe it as {output}"
+    shell:
+        "samtools index {input}"
+
+rule bcftools_call:
+    input:
+        fa=FASTQ_DIR + 'genome.fa',
+        bam=expand("sorted_reads/{sample}.bam", sample=SAMPLES),
+        bai=expand("sorted_reads/{sample}.bam.bai", sample=SAMPLES)
+    output:
+        "calls/all.vcf"
+    message: "aggregate all samples of {input.bam} and {input.bai}. Also jointly call genomic variants on them. Stores it in {output}"
+    shell:
+        "samtools mpileup -g -f {input.fa} {input.bam} | "
+        "bcftools call -mv - > {output}"
+
+
+rule report:
+    input:
+        "calls/all.vcf"
+    output:
+        "out.html"
+    message: "creates a report of the {input}"
+    run:
+        from snakemake.utils import report
+        with open(input[0]) as f:
+            n_calls = sum(1 for line in f if not line.startswith("#"))
+
+        report("""
+        An example workflow
+        ===================================
+
+        Reads were mapped to the Yeas reference genome 
+        and variants were called jointly with
+        SAMtools/BCFtools.
+
+        This resulted in {n_calls} variants (see Table T1_).
+        """, output[0], metadata="Author: Mr Pipeline", T1=input[0])
+
+    
