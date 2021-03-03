@@ -1,0 +1,78 @@
+import os
+from snakemake.remote.NCBI import RemoteProvider as NCBIRemoteProvider
+NCBI = NCBIRemoteProvider(email="m.barelds@st.hanze.nl") # email required by NCBI
+
+rule all2:
+    input:
+        "test.txt"
+
+rule bla:
+    input:
+        "bioinf.nl/~fennaf/snakemake/test.txt"
+    output: 
+        "test.txt"
+    shell:
+        "wget {input}"
+
+rule NCBIprotein:
+    input:
+        NCBI.remote("AAH32336.1.fasta", db="protein")
+    run:
+        outputName = os.path.basename("_AAH32336.1.fasta")
+        shell("mv {input} {outputName}")
+
+rule NCBInuccore:
+    input:
+        NCBI.remote("KY785484.1.fasta", db="nuccore")
+    run:
+        outputName = os.path.basename("_KY785484.1.fasta")
+        shell("mv {input} {outputName}")
+
+rule NCBIcorona:
+    input:
+        NCBI.remote("NC_045512.2.fasta", db="nuccore")
+    run:
+        outputName = os.path.basename("_NC_045512.2.fasta")
+        shell("mv {input} {outputName}")
+
+rule all3:
+    input:
+        "size.txt"
+
+rule download_and_count:
+    input:
+        NCBI.remote("AAH32336.1.fasta", db="protein")
+    output:
+        "size.txt"
+    run:
+        shell("wc -c {input} > {output}")
+
+
+# get accessions for the first 3 results in a search for full-length Zika virus genomes
+# the query parameter accepts standard GenBank search syntax
+query = '"Zika virus"[Organism] AND (("9000"[SLEN] : "20000"[SLEN]) AND ("2017/03/20"[PDAT] : "2017/03/24"[PDAT])) '
+accessions = NCBI.search(query, retmax=3)
+
+# give the accessions a file extension to help the RemoteProvider determine the
+# proper output type.
+input_files = expand("{acc}.fasta", acc=accessions)
+
+rule all4:
+    input:
+        "sizes.txt"
+
+rule download_and_count2:
+    input:
+        # Since *.fasta files could come from several different databases, specify the database here.
+        # if the input files are ambiguous, the provider will alert the user with possible options
+        # standard options like "seq_start" are supported
+        NCBI.remote(input_files, db="nuccore", seq_start=5000)
+
+    output:
+        "sizes.txt",
+        "multi_fasta.fasta"
+    run:
+        shell("wc -c {input} > sizes.txt")
+        shell("cat *.fasta > multi_fasta.fasta")
+
+
