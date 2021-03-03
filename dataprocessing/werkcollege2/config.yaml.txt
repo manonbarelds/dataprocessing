@@ -1,0 +1,6 @@
+#configfile config.yaml
+samples:
+    A
+    B
+    C
+    
