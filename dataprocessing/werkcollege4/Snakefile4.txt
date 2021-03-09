@@ -1,0 +1,71 @@
+datadir= "/mnt/c/Users/manon/dataprocessing_/dataprocessing/snakemake-test/"
+SAMPLES= "A", "B"
+
+rule all:
+    """ final rule """
+    input: 
+        'result/histogram.jpg',
+        'result/histogram2.jpg',
+        'result/rundirective.txt',
+        'result/scriptdirective.txt',
+        'result/heatmap.jpg'
+
+rule make_histogram:
+    """ rule that creates histogram from gene expression counts"""
+    input:
+        datadir + "out4.csv"
+    output:
+         'result/histogram.jpg'
+    run:
+        from snakemake.utils import R
+        R("""
+        data <-read.csv(file = "{input}", header=FALSE, sep=";")
+        jpeg("{output}")
+        hist(x=data$V1,
+             main="expression values of gene CCND3 Cyclin D3",
+             ylab="count",
+             xlab="gene CCND3 Cyclin D3 expression")
+        dev.off()
+        """)
+
+rule make_histogram_existing_rscript:
+    """ rule that creates histogram from gene expression counts with an existing R script on local device"""
+    input:
+        datadir + 'out4.csv'
+    output:
+         'result/histogram2.jpg'
+    shell:
+        "Rscript werkcollege4.R {input} {output}"
+
+rule collate_outputs_rundirective:
+    """rule that run directive to run a piece of python code"""
+    input:
+        expand('{sample}.txt', sample=SAMPLES)
+    output:
+        'result/rundirective.txt'
+    run:
+        with open(output[0], 'w') as out:
+            for i in input:
+                sample = i.split('.')[0]
+                for line in open(i):
+                    out.write(sample + ' ' + line)
+
+rule collate_outputs_scriptdirective:
+    """rule that script directive to run a piece of python code"""
+    input:
+        expand('{sample}.txt', sample=SAMPLES)
+    output:
+        'result/scriptdirective.txt'
+    script:
+        'collate_output.py'
+
+rule make_heatmap_existingRfile:
+    """ rule that creates heatmap of the gene_ex.csv file with an existing R file on local device"""
+    input:
+        datadir + 'gene_ex.csv'
+    output:
+         'result/heatmap.jpg'
+    shell:
+        "Rscript heatmap.R {input} {output}"
+
+
